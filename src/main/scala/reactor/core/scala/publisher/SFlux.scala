@@ -1,23 +1,22 @@
 package reactor.core.scala.publisher
 
-import java.lang.{Boolean => JBoolean, Iterable => JIterable, Long => JLong}
+import java.lang.{Boolean ⇒ JBoolean, Iterable ⇒ JIterable, Long ⇒ JLong}
 import java.util
 import java.util.concurrent.Callable
 import java.util.function.{BiFunction, Function, Supplier}
 import java.util.logging.Level
-import java.util.{Comparator, Collection => JCollection, List => JList, Map => JMap}
-
+import java.util.{Comparator, Collection ⇒ JCollection, List ⇒ JList, Map ⇒ JMap}
 import org.reactivestreams.{Publisher, Subscriber}
 import reactor.core.Disposable
 import reactor.core.publisher.FluxSink.OverflowStrategy
-import reactor.core.publisher.{BufferOverflowStrategy, FluxSink, Signal, SignalType, SynchronousSink, Flux => JFlux, GroupedFlux => JGroupedFlux}
+import reactor.core.publisher.{BufferOverflowStrategy, FluxSink, Signal, SignalType, SynchronousSink, Flux ⇒ JFlux, GroupedFlux ⇒ JGroupedFlux}
 import reactor.core.scheduler.{Scheduler, Schedulers}
 import reactor.util.Logger
 import reactor.util.concurrent.Queues
 import reactor.util.concurrent.Queues.{SMALL_BUFFER_SIZE, XS_BUFFER_SIZE}
 import reactor.util.context.Context
 import reactor.util.function.{Tuple3, Tuple4, Tuple5, Tuple6}
-import reactor.util.retry.Retry
+import reactor.util.retry.{Retry, RetrySpec}
 
 import scala.annotation.unchecked.uncheckedVariance
 import scala.collection.mutable
@@ -369,7 +368,7 @@ trait SFlux[+T] extends VersionedSFlux[T] with SFluxLike[T] with MapablePublishe
   }
 
   @deprecated("will be removed, use transformDeferred() instead", since="reactor-scala-extensions 0.5.0")
-  final def compose[V](transformer: SFlux[T] => Publisher[V]): SFlux[V] = new ReactiveSFlux[V](coreFlux.compose[V](transformer))
+  final def compose[V](transformer: SFlux[T] => Publisher[V]): SFlux[V] = new ReactiveSFlux[V](coreFlux.publish[V](transformer))
 
   final def transformDeferred[V](transformer: SFlux[T] => Publisher[V]): SFlux[V] = new ReactiveSFlux[V](coreFlux.transformDeferred[V](transformer))
 
@@ -695,11 +694,11 @@ trait SFlux[+T] extends VersionedSFlux[T] with SFluxLike[T] with MapablePublishe
   final def repeat(numRepeat: Long = Long.MaxValue, predicate: () => Boolean = () => true): SFlux[T] = coreFlux.repeat(numRepeat, predicate).asScala
 
   @deprecated("Use retryWhen(Retryu), will be removed in 1.0.0", since = "0.8")
-  final def retry(numRetries: Long = Long.MaxValue, retryMatcher: Throwable => Boolean = (_: Throwable) => true): SFlux[T] = coreFlux.retry(numRetries, retryMatcher).asScala
+  final def retry(numRetries: Long = Long.MaxValue, retryMatcher: Throwable => Boolean = (_: Throwable) => true): SFlux[T] = coreFlux.retryWhen(numRetries, retryMatcher).asScala
 
   @deprecated("Use retryWhen(Retry)")
   final def retryWhen(whenFactory: SFlux[Throwable] => Publisher[_]): SFlux[T] = {
-    val func = new Function[JFlux[Throwable], Publisher[_]] {
+    val func =  new Function[JFlux[Throwable], Publisher[_]] {
       override def apply(t: JFlux[Throwable]): Publisher[_] = whenFactory(new ReactiveSFlux[Throwable](t))
     }
     coreFlux.retryWhen(func).asScala

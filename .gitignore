@@ -5,3 +5,10 @@ build
 classes/
 out/
 target/
+
+.bsp/
+project/.boot/
+project/.ivy/
+project/.sbtboot/
+
+

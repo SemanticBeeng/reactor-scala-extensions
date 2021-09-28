@@ -1,12 +1,12 @@
 
 // Defining dependencies
-val reactorVersion = "3.3.9.RELEASE"
+val reactorVersion = "3.4.10"
 val reactorCore = "io.projectreactor" % "reactor-core" % reactorVersion
 //test libraries
-val micrometer = "io.micrometer" % "micrometer-core" % "1.5.4" % "test"
-val mockitoInline = "org.mockito" % "mockito-inline" % "3.5.0" % "test"
-val mockitoScala = "org.mockito" %% "mockito-scala" % "1.14.8" % "test"
-val scalaTest = "org.scalatest" %% "scalatest" % "3.2.1" % "test"
+val micrometer = "io.micrometer" % "micrometer-core" % "1.7.4" % "test"
+val mockitoInline = "org.mockito" % "mockito-inline" % "3.12.4" % "test"
+val mockitoScala = "org.mockito" %% "mockito-scala" % "1.16.42" % "test"
+val scalaTest = "org.scalatest" %% "scalatest" % "3.2.9" % "test"
 val reactorTest = "io.projectreactor" % "reactor-test" % reactorVersion % "test"
 
 //Scala versions for cross compiling
